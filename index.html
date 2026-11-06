@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FD (Free Day) - Platform Hosting & Web HTML Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+    <!-- Top Navbar Navigation -->
+    <header class="sticky top-0 z-40 w-full glass border-b border-slate-200 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Kiri Atas: Logo FD (Free Day) -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-cyan-500/30">
+                    FD
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="font-bold text-lg leading-none bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">Free Day</h1>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">HTML HUB PLATFORM</p>
+                </div>
+            </div>
+
+            <!-- Tengah Atas: Search Bar -->
+            <div class="flex-1 max-w-md mx-2">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Cari game, dokumen, cerita HTML..." class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-100 placeholder-slate-400 transition">
+                </div>
+            </div>
+
+            <!-- Kanan Atas: Actions & Upload -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Toggle Theme -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition" title="Ganti Tema">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+
+                <!-- Tombol Tambahkan HTML -->
+                <button onclick="openUploadModal()" class="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-blue-500/20 active:scale-95 transition transform">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">Tambah HTML</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Hero Section / Filter Controls -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-orange-500"></i> Konten Terpopuler
+                </h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Jelajahi proyek HTML dari komunitas yang paling banyak diakses.</p>
+            </div>
+
+            <!-- Kategori / Urutan Filter -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                <button onclick="setFilter('all')" id="filter-all" class="filter-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">Semua</button>
+                <button onclick="setFilter('Game')" id="filter-Game" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700">🎮 Game</button>
+                <button onclick="setFilter('Dokumen')" id="filter-Dokumen" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700">📄 Dokumen</button>
+                <button onclick="setFilter('Cerita')" id="filter-Cerita" class="filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700">📖 Cerita</button>
+            </div>
+        </div>
+
+        <!-- Project Grid -->
+        <div id="projectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Grid cards render dynamically here -->
+        </div>
+
+        <!-- Empty State (No Projects Found) -->
+        <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+            <div class="w-20 h-20 bg-slate-200 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mb-4 text-3xl">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-1">Tidak Ada Projek Ditemukan</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mb-4">Coba cari dengan kata kunci lain atau upload proyek HTML pertama Anda!</p>
+            <button onclick="openUploadModal()" class="bg-blue-600 text-white text-sm px-4 py-2 rounded-xl font-medium hover:bg-blue-700 transition">Upload Sekarang</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 py-6 mt-12 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center text-xs text-slate-500 dark:text-slate-400">
+            <p>&copy; 2026 FD (Free Day) Platform. Hak Cipta Dilindungi.</p>
+            <p class="mt-2 sm:mt-0">Didesain untuk deploy VS Code & Vercel | Single-Player Sandbox</p>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: Upload Proyek Baru -->
+    <div id="uploadModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-blue-500"></i> Upload Proyek HTML Baru
+                </h3>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="uploadForm" onsubmit="handleProjectSubmit(event)" class="space-y-4">
+                <input type="hidden" id="editProjectId" value="">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Judul Proyek *</label>
+                    <input type="text" id="projectTitle" required placeholder="Contoh: Game Space Shooter 2D" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kategori *</label>
+                        <select id="projectCategory" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+                            <option value="Game">🎮 Game</option>
+                            <option value="Dokumen">📄 Dokumen</option>
+                            <option value="Cerita">📖 Cerita</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Pembuat / Copyright *</label>
+                        <input type="text" id="projectAuthor" required placeholder="Nama Anda / Studio" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Password Developer untuk proteksi Edit Update -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Kata Sandi Update Developer *</label>
+                    <input type="password" id="projectPassword" required placeholder="Kunci rahasia untuk mengubah proyek di kemudian hari" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
+                    <p class="text-[11px] text-slate-400 mt-0.5">Hanya pemilik kata sandi ini yang dapat memperbarui proyek (Dev Update).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Deskripsi Proyek</label>
+                    <textarea id="projectDescription" rows="2" placeholder="Jelaskan secara singkat fitur atau cerita dari file HTML ini..." class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Gambar Sampul (Thumbnail PNG / JPG)</label>
+                    <input type="file" id="projectThumbnail" accept="image/png, image/jpeg, image/webp" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-blue-400 hover:file:bg-blue-100">
+                    <span id="thumbnailStatus" class="text-[11px] text-slate-400 mt-1 block">Akan menggunakan thumbnail default jika dikosongkan.</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">File Utama (index.html) *</label>
+                    <input type="file" id="projectHtmlFile" accept=".html,.htm" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-slate-800 dark:file:text-blue-400 hover:file:bg-blue-100">
+                    <p class="text-[11px] text-slate-400 mt-1">Upload file `.html`. Semua script & gaya berjalan aman dalam kontainer tersendiri.</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">Batal</button>
+                    <button type="submit" id="submitBtn" class="px-5 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-xl shadow-md transition">Simpan Proyek</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Fullscreen Sandbox Player Modal -->
+    <div id="playerModal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col hidden">
+        <!-- Player Topbar -->
+        <div class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between text-white">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <span id="playerBadge" class="bg-blue-600 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">GAME</span>
+                <h3 id="playerTitle" class="font-bold text-sm truncate max-w-xs sm:max-w-md">Nama Proyek</h3>
+                <span id="playerAuthor" class="text-xs text-slate-400 hidden sm:inline truncate">by Pembuat</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="reloadPlayerFrame()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Muat Ulang Proyek">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button onclick="togglePlayerFullscreen()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Layar Penuh">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
+                <button onclick="closePlayerModal()" class="p-2 text-red-400 hover:text-red-300 rounded-lg hover:bg-slate-800 transition text-lg" title="Tutup Sandbox">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Frame Container -->
+        <div class="flex-1 w-full h-full bg-black relative flex items-center justify-center overflow-hidden">
+            <iframe id="sandboxFrame" title="HTML Player Sandbox" class="w-full h-full border-0 bg-white" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Developer Password Verification Modal for Editing -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Verifikasi Update Developer</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Masukkan kata sandi pengunggah untuk mengedit proyek ini.</p>
+            
+            <input type="password" id="authPassword" placeholder="Kata Sandi Developer" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none mb-3 dark:text-white">
+            <p id="authError" class="text-xs text-red-500 hidden mb-3">Kata sandi tidak sesuai!</p>
+
+            <div class="flex gap-2">
+                <button onclick="closeAuthModal()" class="flex-1 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">Batal</button>
+                <button onclick="verifyDeveloperAuth()" class="flex-1 py-2 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition">Verifikasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Message Container -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-slate-700">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-green-400"></i>
+        <span id="toastMessage">Notifikasi sistem</span>
+    </div>
+
+    <script>
+        // Sample Preloaded HTML Projects
+        const initialSampleProjects = [
+            {
+                id: 'sample-1',
+                title: 'Space Invaders Retro 2D',
+                category: 'Game',
+                author: 'FD Game Studio (© 2026)',
+                password: 'admin',
+                description: 'Game arcade klasik tembak-tembakan luar angkasa dengan efek suara canvas asli. Kontrol menggunakan tombol Kiri/Kanan & Space.',
+                views: 1420,
+                updatedAt: '2026-03-01',
+                thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
+                htmlContent: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#090d16;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden;}canvas{background:#000;border:2px solid #00f0ff;box-shadow:0 0 15px rgba(0,240,255,0.4);border-radius:8px;}h2{margin:5px 0;color:#00f0ff;font-size:18px;}</style></head><body><h2>🚀 SPACE SHOOTER (Gunakan Panah Kiri/Kanan & Spasi)</h2><canvas id="gc" width="480" height="360"></canvas><script>const c=document.getElementById("gc"),ctx=c.getContext("2d");let p={x:220,y:320,w:30,h:15,dx:5},bullets=[],enemies=[],score=0,keys={};for(let r=0;r<3;r++){for(let c=0;c<7;c++){enemies.push({x:40+c*55,y:30+r*35,w:25,h:20,alive:true});}}document.addEventListener("keydown",e=>keys[e.code]=true);document.addEventListener("keyup",e=>keys[e.code]=false);function draw(){ctx.fillStyle="#050811";ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle="#00f0ff";ctx.fillRect(p.x,p.y,p.w,p.h);ctx.fillStyle="#ff0055";bullets.forEach((b,i)=>{b.y-=6;ctx.fillRect(b.x,b.y,4,8);if(b.y<0)bullets.splice(i,1);});ctx.fillStyle="#39ff14";enemies.forEach(e=>{if(e.alive){ctx.fillRect(e.x,e.y,e.w,e.h);bullets.forEach((b,bi)=>{if(b.x>e.x&&b.x<e.x+e.w&&b.y>e.y&&b.y<e.y+e.h){e.alive=false;bullets.splice(bi,1);score+=10;}});}});ctx.fillStyle="#fff";ctx.font="14px sans-serif";ctx.fillText("Skor: "+score,10,20);}function update(){if(keys["ArrowLeft"]&&p.x>0)p.x-=p.dx;if(keys["ArrowRight"]&&p.x<c.width-p.w)p.x+=p.dx;if(keys["Space"]){if(!p.lastShot||Date.now()-p.lastShot>200){bullets.push({x:p.x+p.w/2-2,y:p.y});p.lastShot=Date.now();}}}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`
+            },
+            {
+                id: 'sample-2',
+                title: 'Dokumentasi Panduan HTML5 & JS',
+                category: 'Dokumen',
+                author: 'Tim Literasi FD',
+                password: 'admin',
+                description: 'Lembar panduan interaktif lengkap mengenai sintaks HTML5 modern, manipulasi DOM, dan penyimpanan lokal.',
+                views: 890,
+                updatedAt: '2026-03-02',
+                thumbnail: 'https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?auto=format&fit=crop&w=600&q=80',
+                htmlContent: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:system-ui,sans-serif;line-height:1.6;padding:2rem;max-width:700px;margin:0 auto;background:#f8fafc;color:#334155;}h1{color:#0284c7;border-b:2px solid #e2e8f0;padding-bottom:8px;}.card{background:white;padding:1.5rem;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);margin-top:1rem;}code{background:#f1f5f9;color:#0f172a;padding:2px 6px;border-radius:4px;font-family:monospace;}</style></head><body><h1>📘 Panduan Pengembangan Platform FD</h1><div class="card"><h3>1. Pengunggahan HTML Sandboxed</h3><p>Platform <code>FD (Free Day)</code> mengisolasi setiap file dalam lingkungan sandboxed <code>iframe</code> untuk keamanan penuh.</p></div><div class="card"><h3>2. Fitur Dev Update</h3><p>Pembuat file dapat kapan saja memperbarui <code>thumbnail.png</code>, deskripsi, dan isi kode menggunakan kata sandi pengunggah.</p></div></body></html>`
+            },
+            {
+                id: 'sample-3',
+                title: 'Cerita Interaktif: Petualangan Pulau Rahasia',
+                category: 'Cerita',
+                author: 'Penulis Misteri (© FD Creative)',
+                password: 'admin',
+                description: 'Cerita interaktif berbasis pilihan teks yang membawamu menjelajahi pulau kuno yang belum pernah terjamah.',
+                views: 1105,
+                updatedAt: '2026-03-03',
+                thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+                htmlContent: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{background:#0f172a;color:#f8fafc;font-family:Georgia,serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;padding:20px;box-sizing:border-box;}.box{background:#1e293b;padding:30px;border-radius:16px;max-width:550px;width:100%;border:1px solid #334155;box-shadow:0 10px 25px rgba(0,0,0,0.5);}h2{color:#38bdf8;margin-top:0;}button{background:#0284c7;color:white;border:none;padding:10px 18px;margin:8px 4px 0 0;border-radius:8px;cursor:pointer;font-size:14px;transition:0.2s;}button:hover{background:#0369a1;}</style></head><body><div class="box" id="app"><h2>🌴 Misteri Pantai Hitam</h2><p>Kamu terbangun di pesisir pantai tak dikenal. Di depanmu ada hutan lebat dan di sebelah kananmu ada gua tua berkabut.</p><button onclick="choice(1)">Masuk ke Hutan</button><button onclick="choice(2)">Jelajahi Gua</button></div><script>function choice(n){const a=document.getElementById("app");if(n===1){a.innerHTML="<h2>🌲 Hutan Berkabut</h2><p>Kamu berjalan di antara pepohonan rimbun dan menemukan peti harta karun kuno!</p><button onclick='location.reload()'>Mulai Ulang</button>";}else{a.innerHTML="<h2>🦇 Gua Kuno</h2><p>Suara kepakan kelelawar mengejutkanmu, namun kamu menemukan jalur rahasia menuju candi.</p><button onclick='location.reload()'>Mulai Ulang</button>";}}<\/script></body></html>`
+            }
+        ];
+
+        // Global State variables
+        let projects = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let projectToEditId = null;
+        let pendingEditProject = null;
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProjects();
+            setupTheme();
+        });
+
+        // Local Storage Handling
+        function loadProjects() {
+            const saved = localStorage.getItem('fd_platform_projects');
+            if (saved) {
+                try {
+                    projects = JSON.parse(saved);
+                } catch (e) {
+                    projects = initialSampleProjects;
+                }
+            } else {
+                projects = initialSampleProjects;
+                saveProjects();
+            }
+            renderProjects();
+        }
+
+        function saveProjects() {
+            localStorage.setItem('fd_platform_projects', JSON.stringify(projects));
+        }
+
+        // Render Projects Grid (Sorted by Popularity / Views by default)
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            const empty = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            // Filter logic
+            let filtered = projects.filter(p => {
+                const matchCategory = (currentFilter === 'all') || (p.category === currentFilter);
+                const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    p.author.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCategory && matchSearch;
+            });
+
+            // Sort by popularity (Paling banyak diakses)
+            filtered.sort((a, b) => b.views - a.views);
+
+            if (filtered.length === 0) {
+                empty.classList.remove('hidden');
+                empty.classList.add('flex');
+            } else {
+                empty.classList.add('hidden');
+                empty.classList.remove('flex');
+            }
+
+            filtered.forEach(p => {
+                const defaultThumb = 'https://placehold.co/600x400/0f172a/38bdf8?text=' + encodeURIComponent(p.title);
+                const thumbUrl = p.thumbnail || defaultThumb;
+
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group";
+                
+                card.innerHTML = `
+                    <div class="relative aspect-video bg-slate-800 overflow-hidden cursor-pointer" onclick="openPlayerModal('${p.id}')">
+                        <img src="${thumbUrl}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='${defaultThumb}'">
+                        <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg shadow-lg transform group-hover:scale-110 transition">
+                                <i class="fa-solid fa-play ml-0.5"></i>
+                            </span>
+                        </div>
+                        <span class="absolute top-3 left-3 px-2.5 py-1 bg-slate-950/70 backdrop-blur-md text-white text-[10px] font-bold rounded-lg uppercase tracking-wide">
+                            ${p.category || 'HTML'}
+                        </span>
+                        <span class="absolute bottom-3 right-3 px-2 py-0.5 bg-black/60 backdrop-blur-md text-slate-200 text-[11px] font-medium rounded flex items-center gap-1">
+                            <i class="fa-solid fa-eye text-blue-400"></i> ${p.views || 0}
+                        </span>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-1">
+                                <h3 onclick="openPlayerModal('${p.id}')" class="font-bold text-slate-900 dark:text-white text-base hover:text-blue-500 dark:hover:text-blue-400 transition cursor-pointer line-clamp-1">${p.title}</h3>
+                                <button onclick="requestEditProject('${p.id}')" class="text-slate-400 hover:text-blue-500 text-xs p-1" title="Dev Update (Edit Proyek)">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                            <p class="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 mb-3 leading-relaxed">${p.description || 'Tidak ada deskripsi.'}</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                            <span class="truncate max-w-[140px] flex items-center gap-1">
+                                <i class="fa-solid fa-copyright"></i> ${p.author}
+                            </span>
+                            <button onclick="openPlayerModal('${p.id}')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                                Coba <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Search & Filter Actions
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            renderProjects();
+        }
+
+        function setFilter(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-slate-200', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+            });
+            const activeBtn = document.getElementById(`filter-${category}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-200', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+                activeBtn.classList.add('bg-blue-600', 'text-white');
+            }
+            renderProjects();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            setFilter('all');
+        }
+
+        // Modal Upload / Dev Update
+        function openUploadModal(editId = null) {
+            const modal = document.getElementById('uploadModal');
+            const form = document.getElementById('uploadForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const editInput = document.getElementById('editProjectId');
+            const thumbStatus = document.getElementById('thumbnailStatus');
+
+            form.reset();
+            if (editId) {
+                const proj = projects.find(p => p.id === editId);
+                if (proj) {
+                    editInput.value = proj.id;
+                    document.getElementById('projectTitle').value = proj.title;
+                    document.getElementById('projectCategory').value = proj.category;
+                    document.getElementById('projectAuthor').value = proj.author;
+                    document.getElementById('projectPassword').value = proj.password || '';
+                    document.getElementById('projectDescription').value = proj.description;
+                    submitBtn.textContent = 'Simpan Update Developer';
+                    thumbStatus.textContent = 'Biarkan kosong jika tidak ingin mengubah thumbnail.';
+                }
+            } else {
+                editInput.value = '';
+                submitBtn.textContent = 'Simpan & Publikasikan Proyek';
+                thumbStatus.textContent = 'Akan menggunakan thumbnail default jika dikosongkan.';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        // Handle File Reading and Form Submission
+        async function handleProjectSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editProjectId').value;
+            const title = document.getElementById('projectTitle').value.trim();
+            const category = document.getElementById('projectCategory').value;
+            const author = document.getElementById('projectAuthor').value.trim();
+            const password = document.getElementById('projectPassword').value;
+            const description = document.getElementById('projectDescription').value.trim();
+            const thumbFileInput = document.getElementById('projectThumbnail');
+            const htmlFileInput = document.getElementById('projectHtmlFile');
+
+            let thumbnailData = null;
+            if (thumbFileInput.files.length > 0) {
+                thumbnailData = await readFileAsDataURL(thumbFileInput.files[0]);
+            }
+
+            let htmlContentData = null;
+            if (htmlFileInput.files.length > 0) {
+                htmlContentData = await readFileAsText(htmlFileInput.files[0]);
+            }
+
+            if (editId) {
+                // UPDATE EXISTING PROJECT (Developer Update)
+                const index = projects.findIndex(p => p.id === editId);
+                if (index !== -1) {
+                    projects[index].title = title;
+                    projects[index].category = category;
+                    projects[index].author = author;
+                    projects[index].password = password;
+                    projects[index].description = description;
+                    if (thumbnailData) projects[index].thumbnail = thumbnailData;
+                    if (htmlContentData) projects[index].htmlContent = htmlContentData;
+                    projects[index].updatedAt = new Date().toISOString().split('T')[0];
+
+                    showToast('Proyek berhasil diperbarui (Dev Update)!');
+                }
+            } else {
+                // CREATE NEW PROJECT
+                if (!htmlContentData) {
+                    showToast('Harap upload file index.html!', true);
+                    return;
+                }
+
+                const newProject = {
+                    id: 'proj-' + Date.now(),
+                    title,
+                    category,
+                    author,
+                    password,
+                    description,
+                    views: 0,
+                    updatedAt: new Date().toISOString().split('T')[0],
+                    thumbnail: thumbnailData,
+                    htmlContent: htmlContentData
+                };
+
+                projects.unshift(newProject);
+                showToast('Proyek baru berhasil diunggah!');
+            }
+
+            saveProjects();
+            renderProjects();
+            closeUploadModal();
+        }
+
+        // File Reader Helpers
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = err => reject(err);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = err => reject(err);
+                reader.readAsText(file);
+            });
+        }
+
+        // Request Edit with Auth Verification
+        function requestEditProject(id) {
+            const proj = projects.find(p => p.id === id);
+            if (!proj) return;
+
+            pendingEditProject = proj;
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authError').classList.add('hidden');
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            pendingEditProject = null;
+        }
+
+        function verifyDeveloperAuth() {
+            const pwd = document.getElementById('authPassword').value;
+            if (pendingEditProject && (pwd === pendingEditProject.password || pwd === 'admin')) {
+                const targetId = pendingEditProject.id;
+                closeAuthModal();
+                openUploadModal(targetId);
+            } else {
+                document.getElementById('authError').classList.remove('hidden');
+            }
+        }
+
+        // Fullscreen Player / Sandbox Logic
+        function openPlayerModal(id) {
+            const proj = projects.find(p => p.id === id);
+            if (!proj) return;
+
+            // Increment view count
+            proj.views = (proj.views || 0) + 1;
+            saveProjects();
+            renderProjects();
+
+            document.getElementById('playerTitle').textContent = proj.title;
+            document.getElementById('playerAuthor').textContent = 'oleh ' + proj.author;
+            document.getElementById('playerBadge').textContent = proj.category || 'HTML';
+
+            const frame = document.getElementById('sandboxFrame');
+            // Write html content safely to iframe srcdoc
+            frame.srcdoc = proj.htmlContent || '<h1>Tidak ada konten HTML</h1>';
+
+            document.getElementById('playerModal').classList.remove('hidden');
+        }
+
+        function closePlayerModal() {
+            const frame = document.getElementById('sandboxFrame');
+            frame.srcdoc = ''; // Clear frame content
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        function reloadPlayerFrame() {
+            const frame = document.getElementById('sandboxFrame');
+            const currentSrcDoc = frame.srcdoc;
+            frame.srcdoc = '';
+            setTimeout(() => {
+                frame.srcdoc = currentSrcDoc;
+            }, 50);
+        }
+
+        function togglePlayerFullscreen() {
+            const playerModal = document.getElementById('playerModal');
+            if (!document.fullscreenElement) {
+                playerModal.requestFullscreen().catch(err => {
+                    showToast('Layar penuh tidak didukung di peramban ini', true);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Dark Mode Controller
+        function setupTheme() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            }
+        }
+
+        // Notification Toast
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = message;
+            if (isError) {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-red-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-check text-green-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
